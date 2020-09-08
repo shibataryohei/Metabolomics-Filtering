@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1599533858846.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3118360977",
+    "id" : "37C902B8",
+    "lastKnownWriteTime" : 1599530233,
+    "last_content_update" : 1599530233,
+    "path" : "~/Git/Metabolomics-Filtering/MDplot.R",
+    "project_path" : "MDplot.R",
+    "properties" : {
+        "cursorPosition" : "10,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1599533622726.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2344337858",
+    "id" : "86DA502A",
+    "lastKnownWriteTime" : 1599565612,
+    "last_content_update" : 1599565612753,
+    "path" : "~/Git/Metabolomics-Filtering/Data_adaptive_filtering_example.Rmd",
+    "project_path" : "Data_adaptive_filtering_example.Rmd",
+    "properties" : {
+        "cursorPosition" : "174,22",
+        "last_setup_crc32" : "4B4306EF4fad49e8",
+        "scrollLine" : "160"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

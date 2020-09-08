@@ -7,17 +7,24 @@ output:
 ---
 
 ```{r setup, echo=F}
-knitr::opts_chunk$set(echo = TRUE,message=F,warning=F,tidy = T,tidy.opts = list(width.cutoff=60),fig.show='hold')
+knitr::opts_chunk$set(echo = TRUE,
+                      message=F,
+                      warning=F,
+                      tidy = T,
+                      tidy.opts = list(width.cutoff=60),
+                      fig.show='hold')
 ```
 
 ```{r libraries, echo=FALSE}
+# BiocManager::install("xcms")
 
-libs <- c('xcms','RColorBrewer','tidyverse','doParallel','foreach','parallel')
+libs <- c('xcms','RColorBrewer',
+          'tidyverse','doParallel',
+          'foreach','parallel')
+
 for (l in libs){
   suppressPackageStartupMessages(library(l,character.only=T))
-}
-
-
+  }
 ```
 
 # Introduction
@@ -41,8 +48,12 @@ The function 'MDplot' creates a mean-difference plot such as the ones described 
 ```{r MD Filtering}
 
 ## Create the MD-plot using the 'MDplot' function
-
 # Load the functions
+
+MDplot <- function(filled,blanks,biosamples,high,low){
+  
+  
+}
 
 source("MDplot.R")
 
@@ -50,7 +61,11 @@ source("MDplot.R")
 
 load('Data.RData')
 
-MDplot(filled,blankNames,obsNames,high,low)
+MDplot(filled,
+       blankNames,
+       obsNames,
+       high,
+       low)
 
 ```
 
@@ -58,21 +73,91 @@ After using the 'MDplot' function to visualize the positions of the high and low
 
 
 ```{r }
-
-## Demonstrate plotting of thresholds and filtering for CRC data
-
+library(tidyverse)
+# Demonstrate plotting of thresholds and filtering for CRC data
 # Calculate the number of blank samples (0-3) each feature has a zero value in. Most features are detected in all 3 blank samples (num.zero=0) and only those features are reatianed
 
-num.zero <- apply(filled[,blankNames],1, function(x) sum(x==0))
-names(num.zero) <- rownames(filled)
+# num.zero <- apply(filled[, blankNames], 1, function(x) sum(x==0))
+# filled <- filled[num.zero==0,]
+# unfilled <- unfilled[num.zero==0,]
+# Blankサンプル3つで測定値に1つでも0があるサンプルを除外する
 
-filled <- filled[num.zero==0,]
-unfilled <- unfilled[num.zero==0,]
+filled %>% 
+  dplyr::select(EICno, blankNames) %>% 
+  gather(Sample, Value, -EICno) %>% 
+  filter(Value == 0) %>% 
+  group_by(EICno) %>% 
+  dplyr::summarise(Count = n()) %>% 
+  .$EICno -> Omit_EICno
 
-MDplot(filled,blankNames,obsNames,high,low)
+high
 
-
+low 
 ```
+
+## All Features
+```{R}
+filled %>% 
+  dplyr::select(EICno, obsNames) %>% 
+  gather(Sample, Value, -EICno) %>% 
+  group_by(EICno) %>% 
+  dplyr::summarise(Sample = mean(Value)) -> Sample_Mean
+
+filled %>% 
+  dplyr::select(EICno, blankNames) %>% 
+  gather(Sample, Value, -EICno) %>% 
+  group_by(EICno) %>% 
+  dplyr::summarise(Blank = mean(Value)) -> Blank_Mean
+
+Sample_Mean %>% 
+  inner_join(Blank_Mean) %>% 
+  mutate(Quality = if_else(EICno %in% high, "High" , "Low")) %>% 
+  mutate(SB_Mean = (Sample + Blank)/2,
+         SB_Diff = Sample - Blank) %>% 
+  ggplot(., aes(x = SB_Mean, y = SB_Diff, color = Quality))+
+  geom_point(alpha = 0.8)+
+  geom_hline(yintercept = 0, color = "blue")+
+  xlab("Mean")+ylab("Difference")+
+  ggtitle("Mean-Difference Plot")
+ggsave("Figure/Fig3a.png",
+       dpi = 300, h = 3, w = 5)
+```
+![](Figure/Fig3a.png)
+
+
+
+
+## Fig3b: Features Detected in 3 Blanks
+```{R}
+filled %>% 
+  filter(!EICno %in% Omit_EICno) %>% 
+  dplyr::select(EICno, obsNames) %>% 
+  gather(Sample, Value, -EICno) %>% 
+  group_by(EICno) %>% 
+  dplyr::summarise(Sample = mean(Value)) -> Sample_Mean
+
+filled %>% 
+  filter(!EICno %in% Omit_EICno) %>% 
+  dplyr::select(EICno, blankNames) %>% 
+  gather(Sample, Value, -EICno) %>% 
+  group_by(EICno) %>% 
+  dplyr::summarise(Blank = mean(Value)) -> Blank_Mean
+
+Sample_Mean %>% 
+  inner_join(Blank_Mean) %>% 
+  mutate(Quality = if_else(EICno %in% high, "High" , "Low")) %>% 
+  mutate(SB_Mean = (Sample + Blank)/2,
+         SB_Diff = Sample - Blank) %>% 
+  ggplot(., aes(x = SB_Mean, y = SB_Diff, color = Quality))+
+  geom_point(alpha = 0.5)+
+  geom_hline(yintercept = 0, color = "blue")+
+  xlab("Mean")+ylab("Difference")+
+  ggtitle("Mean-Difference Plot")
+
+ggsave("Figure/Fig3b.png",
+       dpi = 300, h = 3, w = 5)
+```
+![Blankで1つでもzeroになった代謝物を除いても、high quality sampleはomitされないでしょ？と言いたいみたい。](Figure/Fig3b.png)
 
 
 We now demonstrate how to partition the remaining features along the x-axis based on quantiles (20th,40th,60th,80th) and how to visualize and select appropriate filtering cutoffs within each partition (e.g. absolute value of the lower quartile of features below the zero difference line).

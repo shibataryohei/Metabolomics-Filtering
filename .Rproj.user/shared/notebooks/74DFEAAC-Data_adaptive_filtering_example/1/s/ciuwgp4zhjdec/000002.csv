@@ -1,0 +1,8 @@
+"0",""
+"0","libs <- c('xcms','RColorBrewer','tidyverse','doParallel','foreach','parallel')"
+"0","for (l in libs){"
+"0","  suppressPackageStartupMessages(library(l,character.only=T))"
+"0","}"
+"2","Error in library(l, character.only = T) : 
+  there is no package called ‘xcms’
+"
